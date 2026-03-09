@@ -159,4 +159,4 @@ The production compose file includes a `cloudflared` sidecar that exposes the ap
 
 ## License
 
-[MIT](LICENSE)
+[AGPL-3.0](LICENSE)
