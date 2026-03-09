@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./public/v2/og-image-with-text-1280x640-v7.png" alt="Oksskolten — The AI-native RSS reader" width="640" />
+  <img src="./docs/og-image.png" alt="Oksskolten — The AI-native RSS reader" width="640" />
 </p>
 
 
