@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { MessageSquare } from 'lucide-react'
+import { MessagesSquare } from 'lucide-react'
 import useSWR from 'swr'
 import { ChatPanel } from './chat-panel'
 import { fetcher } from '../../lib/fetcher'
@@ -61,7 +61,7 @@ export function ChatFab({ articleId }: ChatFabProps) {
         className="fixed bottom-[calc(1.5rem+var(--safe-area-inset-bottom))] right-6 z-50 w-12 h-12 rounded-full bg-accent text-accent-text flex items-center justify-center shadow-lg hover:opacity-90 transition-opacity select-none"
         aria-label="Chat"
       >
-        <MessageSquare className="w-5 h-5" />
+        <MessagesSquare className="w-5 h-5" />
         {/* Dot badge for existing conversations */}
         {hasConversations && !panelOpen && (
           <span className="absolute top-0 right-0 w-3 h-3 bg-error rounded-full border-2 border-bg" />

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useMemo, type KeyboardEvent } from 'react'
-import { Link, useLocation } from 'react-router-dom'
-import { Send, MessageSquare } from 'lucide-react'
+import { useLocation } from 'react-router-dom'
+import { Send } from 'lucide-react'
 import useSWR from 'swr'
 import { useChat } from '../hooks/use-chat'
 import { ChatPanel } from '../components/chat/chat-panel'
@@ -106,7 +106,6 @@ export function HomePage() {
   // Empty state: centered greeting + input + chips
   if (!hasMessages && !streaming) {
     return (
-      <div className="relative min-h-[calc(100dvh-var(--header-height))]">
       <div className="flex flex-col items-center justify-center min-h-[calc(100dvh-var(--header-height))] px-4 -mt-12 sm:-mt-36">
           {/* Greeting */}
           <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3 mb-4">
@@ -155,15 +154,6 @@ export function HomePage() {
             ))}
           </div>
 
-      </div>
-
-      {/* Chat history link — bottom of viewport */}
-      <div className="absolute bottom-6 left-0 right-0 flex justify-center">
-        <Link to="/chat" className="inline-flex items-center gap-1.5 text-sm text-muted underline hover:text-text transition-colors select-none">
-          <MessageSquare size={14} strokeWidth={1.5} />
-          {t('home.chatHistory')}
-        </Link>
-      </div>
       </div>
     )
   }
