@@ -87,6 +87,14 @@ body {
   }
 }
 
+.theme-json-editor-textarea,
+.theme-json-editor-textarea:focus,
+.theme-json-editor-textarea:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+  -webkit-appearance: none;
+}
+
 .card-selector {
   border-color: color-mix(in srgb, var(--color-border) 30%, transparent);
 }

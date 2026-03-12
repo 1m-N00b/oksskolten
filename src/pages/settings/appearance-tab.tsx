@@ -7,13 +7,18 @@ import { themes as builtinThemes } from '../../data/themes'
 import { PreviewCard } from '../../components/settings/preview-card'
 import { useAppLayout } from '../../app'
 import { Separator } from '@/components/ui/separator'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { PixelDreamPuff, PixelSleepyGiant } from '../../components/ui/mascot'
 import type { MascotChoice } from '../../hooks/use-mascot'
 import { parseThemeJson, themeToJson } from '../../lib/theme-json'
 import type { Theme } from '../../data/themes'
 import { toast } from 'sonner'
+import Editor from 'react-simple-code-editor'
+import hljs from 'highlight.js/lib/core'
+import jsonLang from 'highlight.js/lib/languages/json'
+
+hljs.registerLanguage('json', jsonLang)
 
 /** Derive preview colors from a theme's color definitions */
 function previewColorsFromTheme(colors: Record<string, string>) {
@@ -564,6 +569,30 @@ export function AppearanceTab() {
   )
 }
 
+const PLACEHOLDER_THEME_JSON = JSON.stringify({
+  name: 'my-theme',
+  label: 'My Theme',
+  colors: {
+    light: {
+      background: '#ffffff',
+      'background.sidebar': '#f0f0f2',
+      'background.subtle': '#f7f7f7',
+      'background.avatar': '#d8d8dc',
+      text: '#111111',
+      'text.muted': '#6b7280',
+      accent: '#2563eb',
+      'accent.text': '#ffffff',
+      error: '#dc2626',
+      border: '#e5e7eb',
+      hover: 'rgba(0, 0, 0, 0.04)',
+      overlay: 'rgba(0, 0, 0, 0.3)',
+    },
+    dark: { '...': '...' },
+  },
+}, null, 2)
+
+const PLACEHOLDER_THEME_HTML = `<span class="text-muted opacity-40">${hljs.highlight(PLACEHOLDER_THEME_JSON, { language: 'json' }).value}</span>`
+
 const SAMPLE_THEME_JSON = JSON.stringify({
   name: 'everforest',
   label: 'Everforest',
@@ -673,16 +702,25 @@ function ThemeJsonDialog({
           </DialogTitle>
         </DialogHeader>
 
-        <textarea
-          className="w-full h-64 rounded-md border border-border bg-bg-input text-text text-xs font-mono p-3 resize-y focus:outline-none focus:ring-1 focus:ring-accent"
-          placeholder='{ "name": "my-theme", "label": "My Theme", "colors": { ... } }'
-          value={jsonText}
-          onChange={e => { setJsonText(e.target.value); setError(null) }}
-        />
+        <div className="w-full h-64 sm:h-96 rounded-md border border-border bg-bg-input overflow-auto">
+          <Editor
+            value={jsonText}
+            onValueChange={v => { setJsonText(v); setError(null) }}
+            highlight={code =>
+              code
+                ? hljs.highlight(code, { language: 'json' }).value
+                : PLACEHOLDER_THEME_HTML
+            }
+            padding={12}
+            className="text-xs font-mono text-text min-h-full"
+            textareaClassName="theme-json-editor-textarea"
+            style={{ minHeight: '100%' }}
+          />
+        </div>
 
         {error && <p className="text-xs text-error">{error}</p>}
 
-        <div className="flex items-center">
+        <div className="flex items-center gap-2">
           {!isEditing && (
             <button
               type="button"
@@ -692,23 +730,22 @@ function ThemeJsonDialog({
               {t('settings.sampleButton')}
             </button>
           )}
-          <DialogFooter className="flex-1">
-            <button
-              type="button"
-              className="text-xs px-4 py-2 rounded-md border border-border text-muted hover:text-text hover:bg-hover transition-colors"
-              onClick={handleClose}
-            >
-              {t('settings.cancel')}
-            </button>
-            <button
-              type="button"
-              className="text-xs px-4 py-2 rounded-md bg-accent text-accent-text hover:opacity-90 transition-opacity disabled:opacity-50"
-              disabled={!jsonText.trim()}
-              onClick={doSave}
-            >
-              {isEditing ? t('settings.updateButton') : t('settings.importButton')}
-            </button>
-          </DialogFooter>
+          <div className="flex-1" />
+          <button
+            type="button"
+            className="text-xs px-4 py-2 rounded-md border border-border text-muted hover:text-text hover:bg-hover transition-colors"
+            onClick={handleClose}
+          >
+            {t('settings.cancel')}
+          </button>
+          <button
+            type="button"
+            className="text-xs px-4 py-2 rounded-md bg-accent text-accent-text hover:opacity-90 transition-opacity disabled:opacity-50"
+            disabled={!jsonText.trim()}
+            onClick={doSave}
+          >
+            {isEditing ? t('settings.updateButton') : t('settings.importButton')}
+          </button>
         </div>
       </DialogContent>
     </Dialog>
