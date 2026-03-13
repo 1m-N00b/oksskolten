@@ -75,7 +75,7 @@ function convertResponseToNeutral(
   }
   for (const tc of toolCalls) {
     let input: Record<string, unknown> = {}
-    try { input = JSON.parse(tc.arguments) } catch { /* empty */ }
+    try { input = JSON.parse(tc.arguments) } catch { /* fallback to {} on malformed JSON from LLM */ }
     content.push({
       type: 'tool_use',
       id: tc.id,

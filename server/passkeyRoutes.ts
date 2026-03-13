@@ -14,6 +14,9 @@ import { getDb, getSetting, upsertSetting } from './db.js'
 import { requireAuth, getOrigin, getRpID, getCredentialCount } from './auth.js'
 import { isGitHubOAuthEnabled } from './oauthRoutes.js'
 import { TtlStore } from './lib/ttl-store.js'
+import { logger } from './logger.js'
+
+const log = logger.child('passkey')
 import { NumericIdParams, parseOrBadRequest } from './lib/validation.js'
 
 const RegisterVerifyBody = z.object({
@@ -40,7 +43,8 @@ function loadAaguidMap(): Record<string, string> {
   try {
     const filePath = path.join(import.meta.dirname, 'aaguids.json')
     aaguidMap = JSON.parse(fs.readFileSync(filePath, 'utf-8'))
-  } catch {
+  } catch (err) {
+    log.warn({ err }, 'Failed to load aaguids.json, authenticator names will be unavailable')
     aaguidMap = {}
   }
   return aaguidMap!

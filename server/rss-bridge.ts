@@ -29,7 +29,8 @@ export async function queryRssBridge(url: string): Promise<string | null> {
 
     const firstUrl = (feeds[0] as Record<string, unknown>)?.url
     return typeof firstUrl === 'string' ? firstUrl : null
-  } catch {
+  } catch (err) {
+    log.warn({ err, url }, 'RSS-Bridge query failed')
     return null
   }
 }

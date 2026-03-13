@@ -231,8 +231,8 @@ async function shutdown(signal: string) {
   // 4. Close DB — flushes WAL to main database file
   try {
     getDb().close()
-  } catch {
-    // DB may already be closed
+  } catch (err) {
+    app.log.warn({ err }, 'DB close failed (may already be closed)')
   }
 
   process.exit(0)
