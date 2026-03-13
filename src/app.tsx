@@ -252,7 +252,7 @@ function AnimatedRoutes() {
   const isExitSlide = isTouchDevice && pageType === 'detail' && currentAction === 'PUSH'
 
   return (
-    <AnimatePresence mode="wait" initial={false}>
+    <AnimatePresence mode="popLayout" initial={false}>
       <motion.div
         key={pageType === 'detail' ? location.pathname : pageType}
         initial={isDetailSlide ? { x: '100%', opacity: 1 } : { opacity: 0 }}
