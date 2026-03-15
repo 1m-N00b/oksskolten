@@ -33,6 +33,29 @@ https://blog.cloudflare.com/new-features-2025
 `.md` で終わるパスは Markdown ソース表示ページとして扱う（`ArticleRawPage`）。
 
 
+### コマンドパレット & キーボードショートカット
+
+コマンドパレット（`Cmd+K`）でナビゲーション・アクション・フィード移動・外観設定を統合的に操作できる。`cmdk`（shadcn/ui `CommandDialog`）を使用。
+
+| ショートカット | アクション |
+|---|---|
+| `Cmd+K` | コマンドパレットを開く |
+| `Cmd+Shift+K` | 記事検索を開く |
+| `Cmd+N` | フィード追加 |
+| `Cmd+,` | 設定を開く |
+| `Cmd+1`〜`5` | Inbox / Bookmarks / Likes / History / Chat に移動 |
+
+コマンドパレットのグループ:
+- **Navigation** — Inbox, Bookmarks, Likes, History, Chat, Settings
+- **Actions** — 記事検索, フィード追加, OPML インポート/エクスポート
+- **Feeds** — SWR から動的取得、検索入力時のみ表示（clip フィードは除外）
+- **Appearance** — テーマ・レイアウト・カラーモード切替
+
+全アイテムに英語 `keywords` を設定し、日本語ロケールでも英語入力でマッチする（例: "chat" → 「チャット」）。
+
+グローバルショートカットは `src/hooks/use-global-shortcuts.ts` の `useGlobalShortcuts` フックで管理し、`FeedList` で登録。
+
+
 ### データフェッチ
 
 | 項目 | 方針 |

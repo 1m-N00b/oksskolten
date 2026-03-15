@@ -33,6 +33,29 @@ The frontend prepends `https://` to the splat path to reconstruct the original a
 Paths ending with `.md` are treated as Markdown source view pages (`ArticleRawPage`).
 
 
+### Command Palette & Keyboard Shortcuts
+
+The command palette (`Cmd+K`) provides unified access to navigation, actions, feeds, and appearance settings. It uses `cmdk` (shadcn/ui `CommandDialog`).
+
+| Shortcut | Action |
+|---|---|
+| `Cmd+K` | Open command palette |
+| `Cmd+Shift+K` | Open article search |
+| `Cmd+N` | Add new feed |
+| `Cmd+,` | Open settings |
+| `Cmd+1`–`5` | Navigate to Inbox / Bookmarks / Likes / History / Chat |
+
+Command palette groups:
+- **Navigation** — Inbox, Bookmarks, Likes, History, Chat, Settings
+- **Actions** — Search articles, Add feed, Import/Export OPML
+- **Feeds** — Dynamic list from SWR, shown only when search input is non-empty (clip feeds excluded)
+- **Appearance** — Theme, layout, and color mode switching
+
+All items include English `keywords` for cross-language matching (e.g., typing "chat" matches "チャット" in Japanese locale).
+
+Global shortcuts are managed by `useGlobalShortcuts` hook in `src/hooks/use-global-shortcuts.ts` and registered in `FeedList`.
+
+
 ### Data Fetching
 
 | Item | Approach |

@@ -280,9 +280,24 @@ GitHub OAuth の設定は `settings` テーブルに保存される（追加 env
 
 フィード一覧を OPML 2.0 形式で返す。Content-Type は `application/xml`。ファイルダウンロード用の `Content-Disposition: attachment; filename="oksskolten.opml"` ヘッダ付き。カテゴリは `<outline>` のネストで表現。`type = 'clip'` のフィードは除外。
 
+**POST /api/opml/preview** — OPML インポートプレビュー
+
+`multipart/form-data` でファイルを受け取り、パース結果と重複判定を返す。DB への書き込みは行わない。
+
+```json
+// Response: 200
+{
+  "feeds": [
+    { "name": "Hacker News", "url": "https://news.ycombinator.com", "rssUrl": "https://news.ycombinator.com/rss", "categoryName": "Tech", "isDuplicate": false }
+  ],
+  "totalCount": 15,
+  "duplicateCount": 3
+}
+```
+
 **POST /api/opml** — OPML インポート
 
-`multipart/form-data` でファイルを受け取り、フィードを一括登録。
+`multipart/form-data` でファイルを受け取り、フィードを一括登録。オプションの `selectedUrls` フィールド（JSON 文字列配列）を含めると指定フィードのみインポート。省略時は全件インポート。
 
 ```json
 // Response: 200

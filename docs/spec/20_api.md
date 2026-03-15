@@ -280,9 +280,24 @@ All API endpoints except auth endpoints and public Passkey endpoints require a J
 
 Returns the feed list in OPML 2.0 format. Content-Type is `application/xml`. Includes a `Content-Disposition: attachment; filename="oksskolten.opml"` header for file download. Categories are represented as nested `<outline>` elements. Feeds with `type = 'clip'` are excluded.
 
+**POST /api/opml/preview** — OPML import preview
+
+Accepts a file via `multipart/form-data`, parses it, and returns the feed list with duplicate detection. Does not write to the database.
+
+```json
+// Response: 200
+{
+  "feeds": [
+    { "name": "Hacker News", "url": "https://news.ycombinator.com", "rssUrl": "https://news.ycombinator.com/rss", "categoryName": "Tech", "isDuplicate": false }
+  ],
+  "totalCount": 15,
+  "duplicateCount": 3
+}
+```
+
 **POST /api/opml** — OPML import
 
-Accepts a file via `multipart/form-data` and bulk-registers feeds.
+Accepts a file via `multipart/form-data` and bulk-registers feeds. An optional `selectedUrls` field (JSON string array) can be included to import only specific feeds; if omitted, all feeds are imported.
 
 ```json
 // Response: 200
