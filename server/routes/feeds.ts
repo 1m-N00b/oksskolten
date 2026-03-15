@@ -336,6 +336,44 @@ export async function feedRoutes(api: FastifyInstance): Promise<void> {
       .send(xml)
   })
 
+  // --- OPML preview ---
+
+  api.post('/api/opml/preview', async (request, reply) => {
+    const file = await request.file()
+    if (!file) {
+      reply.status(400).send({ error: 'No file uploaded' })
+      return
+    }
+
+    const buffer = await file.toBuffer()
+    const xml = buffer.toString('utf-8')
+
+    let parsed
+    try {
+      parsed = parseOpml(xml)
+    } catch (err) {
+      reply.status(400).send({ error: err instanceof Error ? err.message : 'Invalid OPML' })
+      return
+    }
+
+    const feeds = parsed.map((entry) => {
+      const existing = getFeedByUrl(entry.url)
+      return {
+        name: entry.name,
+        url: entry.url,
+        rssUrl: entry.rssUrl,
+        categoryName: entry.categoryName,
+        isDuplicate: !!existing,
+      }
+    })
+
+    reply.send({
+      feeds,
+      totalCount: feeds.length,
+      duplicateCount: feeds.filter((f) => f.isDuplicate).length,
+    })
+  })
+
   // --- OPML import ---
 
   api.post('/api/opml', async (request, reply) => {
@@ -356,6 +394,18 @@ export async function feedRoutes(api: FastifyInstance): Promise<void> {
       return
     }
 
+    // Filter by selectedUrls if provided
+    const selectedUrlsRaw = file.fields?.selectedUrls
+    let selectedUrlSet: Set<string> | null = null
+    if (selectedUrlsRaw && typeof selectedUrlsRaw === 'object' && 'value' in selectedUrlsRaw) {
+      const urls: string[] = JSON.parse((selectedUrlsRaw as { value: string }).value)
+      selectedUrlSet = new Set(urls)
+    }
+
+    const entries = selectedUrlSet
+      ? parsed.filter((entry) => selectedUrlSet!.has(entry.url))
+      : parsed
+
     let imported = 0
     let skipped = 0
     const errors: string[] = []
@@ -365,7 +415,7 @@ export async function feedRoutes(api: FastifyInstance): Promise<void> {
     const existingCategories = getCategories()
     const categoryByName = new Map(existingCategories.map(c => [c.name.toLowerCase(), c]))
 
-    for (const entry of parsed) {
+    for (const entry of entries) {
       try {
         // Check for duplicate by url or rss_url
         if (getFeedByUrl(entry.url)) {
