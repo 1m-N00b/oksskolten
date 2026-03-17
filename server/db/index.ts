@@ -5,3 +5,5 @@ export { getArticles, getArticleByUrl, getArticleById, getArticlesByIds, markArt
 export { getCategories, getCategoryById, createCategory, updateCategory, deleteCategory, markAllSeenByCategory } from './categories.js'
 export { getSetting, upsertSetting, deleteSetting, getOrCreateJwtSecret } from './settings.js'
 export { createConversation, getConversations, getConversationById, updateConversation, deleteConversation, insertChatMessage, getChatMessages, deleteChatMessage, replaceChatMessages } from './conversations.js'
+export { createApiKey, listApiKeys, deleteApiKey, validateApiKey } from './apiKeys.js'
+export type { ApiKey, ApiKeyCreated } from './apiKeys.js'
