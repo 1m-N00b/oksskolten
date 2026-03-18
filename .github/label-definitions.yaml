@@ -19,6 +19,9 @@
 - name: kind/feature
   description: A feature request; new or enhanced behavior
   color: 425df5
+- name: kind/deprecation
+  description: Related to a feature or part of code being deprecated.
+  color: 425df5
 - name: kind/cleanup
   description: Categorizes issue or PR as related to cleaning up code, issues, etc.
   color: 425df5
