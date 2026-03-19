@@ -25,7 +25,6 @@ deny contains msg if {
 }
 
 # Rule 2: Feature specs (filename contains _feature_) must have exactly one H2
-# This rule is enforced via --data flag passing metadata from the shell script.
 # When input.metadata.is_feature is true, enforce single H2.
 deny contains msg if {
 	object.get(input, ["metadata", "is_feature"], false) == true
