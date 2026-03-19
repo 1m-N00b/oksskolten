@@ -50,6 +50,9 @@ export default defineConfig({
           },
           setupFiles: ['src/__tests__/setup.ts'],
           maxThreads: 2,
+          coverage: {
+            provider: 'istanbul',
+          },
         },
       },
     ],
