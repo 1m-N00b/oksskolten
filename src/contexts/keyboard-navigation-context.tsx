@@ -1,9 +1,8 @@
-import { createContext, useContext, useState, useCallback, type ReactNode } from 'react'
+import { createContext, useContext, useState, type ReactNode } from 'react'
 
 interface KeyboardNavigationValue {
   focusedItemId: string | null
   setFocusedItemId: (id: string | null) => void
-  resetFocus: () => void
 }
 
 const KeyboardNavigationContext = createContext<KeyboardNavigationValue | null>(null)
@@ -11,13 +10,9 @@ const KeyboardNavigationContext = createContext<KeyboardNavigationValue | null>(
 export function KeyboardNavigationProvider({ children }: { children: ReactNode }) {
   const [focusedItemId, setFocusedItemId] = useState<string | null>(null)
 
-  const resetFocus = useCallback(() => {
-    setFocusedItemId(null)
-  }, [])
-
   return (
     <KeyboardNavigationContext.Provider
-      value={{ focusedItemId, setFocusedItemId, resetFocus }}
+      value={{ focusedItemId, setFocusedItemId }}
     >
       {children}
     </KeyboardNavigationContext.Provider>

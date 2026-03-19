@@ -76,11 +76,8 @@ vi.mock('../../contexts/fetch-progress-context', () => ({
 
 vi.mock('../../contexts/keyboard-navigation-context', () => ({
   useKeyboardNavigationContext: () => ({
-    focusContext: null,
     focusedItemId: null,
-    setFocusContext: vi.fn(),
     setFocusedItemId: vi.fn(),
-    resetFocus: vi.fn(),
   }),
 }))
 
