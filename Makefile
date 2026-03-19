@@ -1,4 +1,4 @@
-.PHONY: help ci test test-server test-client typecheck lint lint-spec build-demo dev dev-down dev-scratch prod prod-down
+.PHONY: help ci test test-server test-client typecheck lint lint-docs build-demo dev dev-down dev-scratch prod prod-down
 
 COMPOSE ?= docker compose
 
@@ -33,11 +33,10 @@ typecheck: ## Run TypeScript type checking
 lint: ## Run ESLint
 	npm run lint
 
-lint-spec: ## Lint spec documents (structure policy)
+lint-docs: ## Lint docs (spec and guide structure policies)
 	conftest verify --policy policy/spec
-	@echo
-	@echo conftest test --policy policy/spec
-	@bash scripts/test-spec-policy.sh
+	conftest verify --policy policy/guides
+	@bash scripts/lint-docs.sh
 
 build-demo: ## Build demo site (catches demo-mode export mismatches)
 	@npx vite build --mode demo 2>&1 \

@@ -34,10 +34,11 @@ jobs:
               - 'tsconfig.json'
               - 'vitest.config.ts'
               - 'eslint.config.js'
-            spec:
+            docs:
               - 'docs/spec/**'
-              - 'policy/spec/**'
-              - 'scripts/test-spec-policy.sh'
+              - 'docs/guides/**'
+              - 'policy/**'
+              - 'scripts/lint-docs.sh'
             client:
               - 'src/**'
               - 'shared/**'
@@ -185,10 +186,10 @@ jobs:
           json-summary-path: coverage/client/coverage-summary.json
           json-summary-compare-path: ${{ steps.check-base.outputs.exists == 'true' && 'coverage/client-base/coverage-summary.json' || '' }}
 
-  lint-spec:
-    name: Spec Lint
+  lint-docs:
+    name: Docs Lint
     needs: detect-changes
-    if: needs.detect-changes.outputs.spec == 'true'
+    if: needs.detect-changes.outputs.docs == 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -207,20 +208,22 @@ jobs:
       - run: npm ci
 
       - name: Verify Rego tests
-        run: conftest verify --policy policy/spec
+        run: |
+          conftest verify --policy policy/spec
+          conftest verify --policy policy/guides
 
-      - name: Lint spec documents
-        run: bash scripts/test-spec-policy.sh
+      - name: Lint docs
+        run: bash scripts/lint-docs.sh
 
   ci-gate:
     name: CI Gate
     if: always()
-    needs: [check, server-test, client-test, lint-spec]
+    needs: [check, server-test, client-test, lint-docs]
     runs-on: ubuntu-latest
     steps:
       - name: Check results
         run: |
-          results=("${{ needs.check.result }}" "${{ needs.server-test.result }}" "${{ needs.client-test.result }}" "${{ needs.lint-spec.result }}")
+          results=("${{ needs.check.result }}" "${{ needs.server-test.result }}" "${{ needs.client-test.result }}" "${{ needs.lint-docs.result }}")
           for r in "${results[@]}"; do
             if [[ "$r" != "success" && "$r" != "skipped" ]]; then
               echo "Job failed with result: $r"
