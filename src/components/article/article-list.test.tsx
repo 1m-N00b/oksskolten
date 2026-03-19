@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { render, screen, cleanup } from '@testing-library/react'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { render, screen } from '@testing-library/react'
 import { MemoryRouter, Routes, Route, Outlet } from 'react-router-dom'
 import { LocaleContext } from '../../lib/i18n'
 import type { ArticleListItem } from '../../../shared/types'
@@ -157,10 +157,6 @@ function renderArticleList(initialPath = '/inbox') {
 }
 
 describe('ArticleList', () => {
-  afterEach(() => {
-    cleanup()
-  })
-
   beforeEach(() => {
     vi.clearAllMocks()
     swrFeedsData = undefined

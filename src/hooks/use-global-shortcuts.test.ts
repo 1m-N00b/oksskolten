@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { renderHook, cleanup } from '@testing-library/react'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { renderHook } from '@testing-library/react'
 
 const mockNavigate = vi.fn()
 vi.mock('react-router-dom', () => ({
@@ -12,8 +12,6 @@ describe('useGlobalShortcuts', () => {
   const onCommandPalette = vi.fn()
   const onSearch = vi.fn()
   const onAddFeed = vi.fn()
-
-  afterEach(cleanup)
 
   beforeEach(() => {
     vi.clearAllMocks()

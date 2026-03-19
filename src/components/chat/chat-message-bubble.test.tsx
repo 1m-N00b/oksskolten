@@ -1,11 +1,9 @@
-import { describe, it, expect, afterEach } from 'vitest'
-import { render, screen, cleanup } from '@testing-library/react'
+import { describe, it, expect } from 'vitest'
+import { render, screen } from '@testing-library/react'
 import { ChatMessageBubble } from './chat-message-bubble'
 import type { ChatMessage } from '../../hooks/use-chat'
 
 describe('ChatMessageBubble', () => {
-  afterEach(cleanup)
-
   it('renders user message as plain text bubble', () => {
     const message: ChatMessage = { role: 'user', text: 'Hello there' }
     render(<ChatMessageBubble message={message} />)

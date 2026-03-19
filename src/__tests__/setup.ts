@@ -1,3 +1,10 @@
+import { cleanup } from '@testing-library/react'
+import { afterEach } from 'vitest'
+
+afterEach(() => {
+  cleanup()
+})
+
 // Node.js 25+ ships a built-in localStorage that lacks full Web Storage API.
 // Provide a proper in-memory implementation for tests.
 const store = new Map<string, string>()

@@ -49,6 +49,7 @@ export default defineConfig({
             jsdom: { url: 'http://localhost' },
           },
           setupFiles: ['src/__tests__/setup.ts'],
+          maxThreads: 2,
         },
       },
     ],

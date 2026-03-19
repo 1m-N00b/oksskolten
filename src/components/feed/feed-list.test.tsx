@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { render, screen, fireEvent, cleanup } from '@testing-library/react'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { render, screen, fireEvent } from '@testing-library/react'
 import { MemoryRouter, Route, Routes, Outlet } from 'react-router-dom'
 import { SWRConfig } from 'swr'
 import { LocaleContext } from '../../lib/i18n'
@@ -157,10 +157,6 @@ function renderFeedList(
 }
 
 describe('FeedList', () => {
-  afterEach(() => {
-    cleanup()
-  })
-
   beforeEach(() => {
     vi.clearAllMocks()
   })

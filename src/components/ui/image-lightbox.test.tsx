@@ -1,11 +1,9 @@
-import { describe, it, expect, vi, afterEach } from 'vitest'
-import { render, cleanup } from '@testing-library/react'
+import { describe, it, expect, vi } from 'vitest'
+import { render } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ImageLightbox } from './image-lightbox'
 
 describe('ImageLightbox', () => {
-  afterEach(cleanup)
-
   it('renders nothing when src is null', () => {
     const { container } = render(<ImageLightbox src={null} onClose={vi.fn()} />)
     expect(container.innerHTML).toBe('')

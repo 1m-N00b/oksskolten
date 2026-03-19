@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { render, screen, waitFor, cleanup } from '@testing-library/react'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { DataSection } from './data-section'
 
@@ -30,8 +30,6 @@ const samplePreview = {
 
 describe('DataSection OPML preview', () => {
   const user = userEvent.setup({ pointerEventsCheck: 0 })
-
-  afterEach(cleanup)
 
   beforeEach(() => {
     vi.clearAllMocks()

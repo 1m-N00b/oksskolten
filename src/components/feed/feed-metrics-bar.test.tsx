@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { render, cleanup } from '@testing-library/react'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { render } from '@testing-library/react'
 import { FeedMetricsBar } from './feed-metrics-bar'
 import type { FeedWithCounts } from '../../../shared/types'
 
@@ -42,8 +42,6 @@ function makeFeed(overrides: Partial<FeedWithCounts> = {}): FeedWithCounts {
 }
 
 describe('FeedMetricsBar', () => {
-  afterEach(cleanup)
-
   beforeEach(() => {
     swrData = undefined
   })

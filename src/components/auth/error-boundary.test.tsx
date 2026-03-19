@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeAll, afterAll, afterEach } from 'vitest'
-import { render, screen, cleanup } from '@testing-library/react'
+import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest'
+import { render, screen } from '@testing-library/react'
 import { ErrorBoundary } from './error-boundary'
 
 // Suppress React error boundary console.error noise
@@ -12,8 +12,6 @@ function ThrowingChild({ error }: { error: Error }): React.ReactNode {
 }
 
 describe('ErrorBoundary', () => {
-  afterEach(cleanup)
-
   it('renders children when no error', () => {
     render(
       <ErrorBoundary>

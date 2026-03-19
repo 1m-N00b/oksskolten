@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { render, screen, fireEvent, cleanup, waitFor } from '@testing-library/react'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { LocaleContext } from '../../lib/i18n'
 import { TooltipProvider } from '../ui/tooltip'
 
@@ -42,10 +42,6 @@ describe('ApiTokenSettings', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     swrData = []
-  })
-
-  afterEach(() => {
-    cleanup()
   })
 
   it('renders empty state when no tokens exist', () => {

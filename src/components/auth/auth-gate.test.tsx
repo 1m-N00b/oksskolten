@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { render, screen, cleanup, waitFor } from '@testing-library/react'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { render, screen, waitFor } from '@testing-library/react'
 
 // --- Mocks ---
 const mockMutate = vi.fn()
@@ -35,10 +35,6 @@ describe('AuthGate', () => {
     swrReturn = { data: undefined, error: undefined, isLoading: true }
     // Ensure no oauth_code in URL
     window.history.replaceState({}, '', '/')
-  })
-
-  afterEach(() => {
-    cleanup()
   })
 
   it('shows loading spinner while authenticating', () => {
