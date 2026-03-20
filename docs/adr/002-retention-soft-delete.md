@@ -21,7 +21,7 @@ Preventing this would require modifying `getExistingArticleUrls()` to also query
 
 ## Decision
 
-**Soft delete** was adopted.
+**Soft delete** was adopted, with an `active_articles` VIEW to centralize the filter.
 
 ### Mechanism
 
@@ -38,17 +38,24 @@ Preventing this would require modifying `getExistingArticleUrls()` to also query
 - `getExistingArticleUrls()` requires **no changes** — URLs remain in the `articles` table, so existing duplicate checks continue to work
 - The UNIQUE constraint on `insertArticle()` also continues to function
 
-### Impact on queries
+### `active_articles` VIEW
 
-To exclude purged articles from the UI and aggregations, a `purged_at IS NULL` filter must be added to every query that reads from the `articles` table:
+Manually adding `purged_at IS NULL` to every read query proved error-prone — several queries were initially missed, causing purged articles to still appear in sidebar counts, chat tools, and suggestions.
 
-- `getArticles()`, `getArticlesByIds()` — article listings
-- `getFeeds()` — sidebar count subqueries
-- `getLikeCount()`, `getBookmarkCount()` — count helpers
-- `markAllSeenByFeed()`, `markAllSeenByCategory()` — bulk mark-as-read
-- `getReadingStats()` — statistics
-- `recalculateScores()` — score recalculation
-- `rebuildSearchIndex()`, `syncAllScoredArticlesToSearch()` — search index
+To centralize the filter, an `active_articles` VIEW was introduced (`migrations/0007_active_articles_view.sql`):
+
+```sql
+CREATE VIEW active_articles AS
+SELECT * FROM articles WHERE purged_at IS NULL;
+```
+
+**Rules:**
+- **Read queries** (SELECT): use `FROM active_articles` / `JOIN active_articles`
+- **Write queries** (INSERT/UPDATE/DELETE): use the base `articles` table directly
+- **`getExistingArticleUrls()`**: uses the base `articles` table (must include purged URLs)
+- **Purge functions**: use the base `articles` table (they manage `purged_at` directly)
+
+This makes the rule simple: if you're reading articles for display or aggregation, use the VIEW. If you see `FROM articles` in a SELECT, it should be intentional (write support, URL dedup, or purge logic).
 
 ## Consequences
 
@@ -58,9 +65,10 @@ To exclude purged articles from the UI and aggregations, a `purged_at IS NULL` f
 - Simple migration (column addition only, no new tables)
 - Content columns account for most of the storage, so NULLing them provides substantial space reclamation
 - Row metadata (URL, title, timestamps) is preserved, enabling future historical analytics
+- The `active_articles` VIEW prevents accidental omission of the purge filter in new queries
 
 ### Drawbacks
 
-- **Every query** that reads from the `articles` table must include `purged_at IS NULL`. Forgetting this filter when adding new queries will cause purged articles to appear — a latent bug risk
+- New read queries must use `active_articles` instead of `articles`. Using the base table in a SELECT is easy to do by mistake, though easier to catch in review than a missing WHERE clause
 - Rows themselves remain, so URL and metadata storage continues (on the order of a few hundred bytes per row)
 - SQLite does not actually free the NULLed storage until VACUUM is run (mitigated by a weekly VACUUM cron job)

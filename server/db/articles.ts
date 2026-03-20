@@ -75,7 +75,7 @@ export function updateScore(id: number): void {
 export function recalculateScores(): { updated: number } {
   const result = getDb().prepare(`
     UPDATE articles SET score = (${scoreExpr('')})
-    WHERE purged_at IS NULL AND ${SCORED_ARTICLES_WHERE}
+    WHERE id IN (SELECT id FROM active_articles) AND ${SCORED_ARTICLES_WHERE}
   `).run()
   return { updated: result.changes }
 }
@@ -94,7 +94,7 @@ export function getArticles(opts: {
   offset: number
   smartFloor?: boolean
 }): { articles: ArticleListItem[]; total: number; totalWithoutFloor?: number } {
-  const conditions: string[] = ['a.purged_at IS NULL']
+  const conditions: string[] = []
   const params: Record<string, unknown> = {}
 
   if (opts.feedId) {
@@ -136,7 +136,7 @@ export function getArticles(opts: {
 
     // Candidate 2: SMART_FLOOR_MIN_ARTICLES-th newest article's date
     const top20Row = getNamed<{ floor: string | null }>(`
-      SELECT a.published_at AS floor FROM articles a
+      SELECT a.published_at AS floor FROM active_articles a
       ${scopeWhere}
       ORDER BY a.published_at DESC
       LIMIT 1 OFFSET ${SMART_FLOOR_MIN_ARTICLES - 1}
@@ -144,7 +144,7 @@ export function getArticles(opts: {
 
     // Candidate 3: oldest unread article's date
     const unreadRow = getNamed<{ floor: string | null }>(`
-      SELECT MIN(a.published_at) AS floor FROM articles a
+      SELECT MIN(a.published_at) AS floor FROM active_articles a
       ${scopeWhere ? scopeWhere + ' AND' : 'WHERE'} a.seen_at IS NULL AND a.published_at IS NOT NULL
     `, params)
 
@@ -177,12 +177,12 @@ export function getArticles(opts: {
     : opts.liked ? 'a.liked_at DESC' : opts.read ? 'a.read_at DESC' : 'a.published_at DESC'
 
   const totalRow = getNamed<{ cnt: number }>(`
-    SELECT COUNT(*) AS cnt FROM articles a ${where}
+    SELECT COUNT(*) AS cnt FROM active_articles a ${where}
   `, params)
   const total = totalRow.cnt
 
   const totalWithoutFloor = baseWhere != null
-    ? getNamed<{ cnt: number }>(`SELECT COUNT(*) AS cnt FROM articles a ${baseWhere}`, params).cnt
+    ? getNamed<{ cnt: number }>(`SELECT COUNT(*) AS cnt FROM active_articles a ${baseWhere}`, params).cnt
     : undefined
 
   const articles = allNamed<ArticleListItem>(`
@@ -190,7 +190,7 @@ export function getArticles(opts: {
            a.title, a.url, a.published_at, a.lang, a.summary, a.excerpt, a.og_image, a.seen_at, a.read_at, a.bookmarked_at, a.liked_at,
            a.score,
            (SELECT COUNT(*) FROM article_similarities WHERE article_id = a.id) AS similar_count
-    FROM articles a
+    FROM active_articles a
     JOIN feeds f ON a.feed_id = f.id
     ${where}
     ORDER BY ${orderBy}
@@ -260,7 +260,7 @@ export function markArticlesSeen(ids: number[]): { updated: number } {
 export function markAllSeenByFeed(feedId: number): { updated: number } {
   // Collect affected IDs before update for search sync
   const affectedIds = (getDb().prepare(
-    'SELECT id FROM articles WHERE feed_id = ? AND seen_at IS NULL AND purged_at IS NULL',
+    'SELECT id FROM active_articles WHERE feed_id = ? AND seen_at IS NULL',
   ).all(feedId) as { id: number }[]).map(r => r.id)
   const result = getDb().prepare("UPDATE articles SET seen_at = datetime('now') WHERE feed_id = ? AND seen_at IS NULL AND purged_at IS NULL").run(feedId)
   if (affectedIds.length > 0) {
@@ -289,7 +289,7 @@ export function markArticleLiked(
 }
 
 export function getLikeCount(): number {
-  const row = getDb().prepare('SELECT COUNT(*) AS cnt FROM articles WHERE liked_at IS NOT NULL AND purged_at IS NULL').get() as { cnt: number }
+  const row = getDb().prepare('SELECT COUNT(*) AS cnt FROM active_articles WHERE liked_at IS NOT NULL').get() as { cnt: number }
   return row.cnt
 }
 
@@ -313,7 +313,7 @@ export function markArticleBookmarked(
 }
 
 export function getBookmarkCount(): number {
-  const row = getDb().prepare('SELECT COUNT(*) AS cnt FROM articles WHERE bookmarked_at IS NOT NULL AND purged_at IS NULL').get() as { cnt: number }
+  const row = getDb().prepare('SELECT COUNT(*) AS cnt FROM active_articles WHERE bookmarked_at IS NOT NULL').get() as { cnt: number }
   return row.cnt
 }
 
@@ -468,7 +468,7 @@ export function getArticlesByIds(
   const placeholders = ids.map(() => '?').join(',')
   const orderCase = ids.map((id, i) => `WHEN ${id} THEN ${i}`).join(' ')
 
-  const conditions: string[] = [`a.id IN (${placeholders})`, 'a.purged_at IS NULL']
+  const conditions: string[] = [`a.id IN (${placeholders})`]
   if (opts?.unread !== undefined) {
     conditions.push(opts.unread ? 'a.seen_at IS NULL' : 'a.seen_at IS NOT NULL')
   }
@@ -483,7 +483,7 @@ export function getArticlesByIds(
            a.title, a.url, a.published_at, a.lang, a.summary, a.excerpt,
            a.og_image, a.seen_at, a.read_at, a.bookmarked_at, a.liked_at,
            ${score} AS score
-    FROM articles a
+    FROM active_articles a
     JOIN feeds f ON a.feed_id = f.id
     ${where}
     ORDER BY CASE a.id ${orderCase} END
@@ -558,7 +558,7 @@ export function searchArticles(opts: {
     SELECT a.id, a.feed_id, f.name AS feed_name,
            a.title, a.url, a.published_at, a.lang, a.summary, a.excerpt, a.og_image, a.seen_at, a.read_at, a.bookmarked_at, a.liked_at,
            ${score} AS score
-    FROM articles a
+    FROM active_articles a
     JOIN feeds f ON a.feed_id = f.id
     ${where}
     ORDER BY ${orderBy}
@@ -584,7 +584,7 @@ export function getReadingStats(opts?: {
   since?: string
   until?: string
 }): { total: number; read: number; unread: number; by_feed: { feed_id: number; feed_name: string; total: number; read: number; unread: number }[] } {
-  const conditions: string[] = ['a.purged_at IS NULL']
+  const conditions: string[] = []
   const params: Record<string, unknown> = {}
 
   if (opts?.since) {
@@ -603,7 +603,7 @@ export function getReadingStats(opts?: {
       COUNT(*) AS total,
       SUM(CASE WHEN a.seen_at IS NOT NULL THEN 1 ELSE 0 END) AS read,
       SUM(CASE WHEN a.seen_at IS NULL THEN 1 ELSE 0 END) AS unread
-    FROM articles a
+    FROM active_articles a
     ${where}
   `, params)
 
@@ -614,7 +614,7 @@ export function getReadingStats(opts?: {
       COUNT(*) AS total,
       SUM(CASE WHEN a.seen_at IS NOT NULL THEN 1 ELSE 0 END) AS read,
       SUM(CASE WHEN a.seen_at IS NULL THEN 1 ELSE 0 END) AS unread
-    FROM articles a
+    FROM active_articles a
     JOIN feeds f ON a.feed_id = f.id
     ${where}
     GROUP BY a.feed_id

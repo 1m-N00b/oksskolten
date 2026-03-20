@@ -77,8 +77,7 @@ export async function rebuildSearchIndex(): Promise<void> {
              (seen_at IS NULL) AS is_unread,
              (liked_at IS NOT NULL) AS is_liked,
              (bookmarked_at IS NOT NULL) AS is_bookmarked
-      FROM articles
-      WHERE purged_at IS NULL
+      FROM active_articles
     `).all() as MeiliArticleDoc[]
 
     // SQLite returns 0/1 for boolean expressions; Meilisearch needs true/false
@@ -227,8 +226,8 @@ export async function syncAllScoredArticlesToSearch(): Promise<number> {
   }
 
   const rows = getDb().prepare(`
-    SELECT id, score FROM articles
-    WHERE purged_at IS NULL AND ${SCORED_ARTICLES_WHERE}
+    SELECT id, score FROM active_articles
+    WHERE ${SCORED_ARTICLES_WHERE}
   `).all() as { id: number; score: number }[]
 
   if (rows.length === 0) return 0
