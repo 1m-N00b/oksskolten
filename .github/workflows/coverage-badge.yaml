@@ -17,8 +17,8 @@ jobs:
       - name: Check artifacts exist
         id: check
         run: |
-          SERVER=$(gh api "repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}/artifacts" --jq '[.artifacts[] | select(.name=="server-coverage")] | length')
-          CLIENT=$(gh api "repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}/artifacts" --jq '[.artifacts[] | select(.name=="client-coverage")] | length')
+          SERVER=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${WORKFLOW_RUN_ID}/artifacts" --jq '[.artifacts[] | select(.name=="server-coverage")] | length')
+          CLIENT=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${WORKFLOW_RUN_ID}/artifacts" --jq '[.artifacts[] | select(.name=="client-coverage")] | length')
           if [[ "$SERVER" == "0" || "$CLIENT" == "0" ]]; then
             echo "skip=true" >> $GITHUB_OUTPUT
             echo "No coverage artifacts found (tests were likely skipped). Skipping badge update."
@@ -27,6 +27,7 @@ jobs:
           fi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WORKFLOW_RUN_ID: ${{ github.event.workflow_run.id }}
 
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         if: steps.check.outputs.skip != 'true'
@@ -54,7 +55,7 @@ jobs:
 
       - name: Update server coverage badge
         if: steps.check.outputs.skip != 'true'
-        uses: Schneegans/dynamic-badges-action@v1.7.0
+        uses: Schneegans/dynamic-badges-action@e9a478b16159b4d31420099ba146cdc50f134483 # v1.7.0
         with:
           auth: ${{ secrets.GIST_SECRET }}
           gistID: 7de3479899077c477335584e14d51adc
@@ -67,7 +68,7 @@ jobs:
 
       - name: Update client coverage badge
         if: steps.check.outputs.skip != 'true'
-        uses: Schneegans/dynamic-badges-action@v1.7.0
+        uses: Schneegans/dynamic-badges-action@e9a478b16159b4d31420099ba146cdc50f134483 # v1.7.0
         with:
           auth: ${{ secrets.GIST_SECRET }}
           gistID: 7de3479899077c477335584e14d51adc
