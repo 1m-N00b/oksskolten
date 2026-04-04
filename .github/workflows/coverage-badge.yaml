@@ -56,7 +56,7 @@ jobs:
 
       - name: Update server coverage badge
         if: steps.check.outputs.skip != 'true'
-        uses: Schneegans/dynamic-badges-action@e9a478b16159b4d31420099ba146cdc50f134483 # v1.7.0
+        uses: Schneegans/dynamic-badges-action@0e50b8bad39e7e1afd3e4e9c2b7dd145fad07501 # v1.8.0
         with:
           auth: ${{ secrets.GIST_SECRET }}
           gistID: 7de3479899077c477335584e14d51adc
@@ -69,7 +69,7 @@ jobs:
 
       - name: Update client coverage badge
         if: steps.check.outputs.skip != 'true'
-        uses: Schneegans/dynamic-badges-action@e9a478b16159b4d31420099ba146cdc50f134483 # v1.7.0
+        uses: Schneegans/dynamic-badges-action@0e50b8bad39e7e1afd3e4e9c2b7dd145fad07501 # v1.8.0
         with:
           auth: ${{ secrets.GIST_SECRET }}
           gistID: 7de3479899077c477335584e14d51adc
