@@ -100,6 +100,7 @@ export const ArticleList = forwardRef<ArticleListHandle, object>(function Articl
     fetcher,
     {
       revalidateFirstPage: isCollectionView,
+      revalidateIfStale: isCollectionView,
     },
   )
 

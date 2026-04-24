@@ -1,12 +1,12 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSWRConfig } from 'swr'
-import { apiPatch, apiPost, apiDelete } from '../lib/fetcher'
+import { apiPatch, apiPost, apiDelete, fetchFeedsFresh } from '../lib/fetcher'
 import type { ArticleDetail } from '../../shared/types'
 
 export function useArticleActions(article: ArticleDetail | undefined, articleKey: string) {
   const navigate = useNavigate()
-  const { mutate: globalMutate } = useSWRConfig()
+  const { mutate: globalMutate, cache } = useSWRConfig()
 
   const [optimisticBookmark, setOptimisticBookmark] = useState<boolean | undefined>(undefined)
   const [optimisticLiked, setOptimisticLiked] = useState<string | null | undefined>(undefined)
@@ -23,13 +23,16 @@ export function useArticleActions(article: ArticleDetail | undefined, articleKey
   }, [article?.id])
 
   const revalidateLists = useCallback(() => {
-    void globalMutate((key: string) =>
-      typeof key === 'string' && (
-        key.includes('/api/feeds') ||
-        key.includes('/api/articles')
-      ),
-    )
-  }, [globalMutate])
+    void fetchFeedsFresh()
+      .then(payload => globalMutate('/api/feeds', payload, { revalidate: false }))
+      .catch(() => {})
+    // globalMutate(filterFn) skips $inf$ keys (useSWRInfinite) — iterate cache directly
+    for (const key of cache.keys()) {
+      if (typeof key === 'string' && key.includes('/api/articles')) {
+        void globalMutate(key)
+      }
+    }
+  }, [globalMutate, cache])
 
   const toggleBookmark = useCallback(async () => {
     if (!article) return

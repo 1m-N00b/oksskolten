@@ -10,6 +10,12 @@ export const fetcher = async (url: string) => {
   return r.json()
 }
 
+export const fetchFeedsFresh = async () => {
+  const r = await fetch('/api/feeds', { headers: authHeaders(), signal: AbortSignal.timeout(DEFAULT_TIMEOUT_MS), cache: 'no-store' })
+  if (!r.ok) return handleResponseError(r, '/api/feeds')
+  return r.json()
+}
+
 async function request(url: string, method: string, body?: unknown) {
   const res = await fetch(url, {
     method,

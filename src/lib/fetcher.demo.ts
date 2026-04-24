@@ -6,6 +6,8 @@ export type { ChatSSEEvent } from './api-base'
 
 export const fetcher = demoFetcher
 
+export const fetchFeedsFresh = () => demoFetcher('/api/feeds')
+
 export const apiPost = demoApiPost
 export const apiPatch = demoApiPatch as (url: string, body: unknown) => Promise<unknown>
 export const apiDelete = demoApiDelete
